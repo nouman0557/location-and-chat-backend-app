@@ -1,8 +1,13 @@
-const io = require('socket.io')(process.env.PORT || 4000, {
+var express = require('express')
+var app = express()
+var server = require('http').createServer(app)
+const io = require('socket.io')(server, {
     cors: {
-        origin: '**',
+        origin: '*',
     }
 });
+
+//
 
 const db = require('_helpers/db');
 const locationHistory = db.locationHistory;

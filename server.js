@@ -10,6 +10,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 
+
+var server = require('http').createServer(app)
+// var io = require('socket.io')(server)
+// const io = require('socket.io')(server, {
+//     cors: {
+//         origin: '*',
+//     }
+// });
+module.exports = server
+
 // use JWT auth to secure the api
 app.use(jwt());
 
@@ -25,7 +35,7 @@ app.use(errorHandler);
 
 // start server
 const port = process.env.PORT || 3000;
-const server = app.listen(port, () => {
+const newServer = server.listen(port, () => {
     console.log('Server listening on port -->' + port);
 });
 
