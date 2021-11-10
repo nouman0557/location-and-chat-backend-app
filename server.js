@@ -14,7 +14,7 @@ app.use(cors());
 app.use(jwt());
 
 app.get('/', (req, res) => {
-    res.send('hello NoumanBhai!')
+    res.send('Hello Wellcome ----------- NoumanBhai!')
 })
 
 // api routes
