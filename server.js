@@ -13,6 +13,10 @@ app.use(cors());
 // use JWT auth to secure the api
 app.use(jwt());
 
+app.get('/', (req, res) => {
+    res.send('hello NoumanBhai!')
+})
+
 // api routes
 app.use('/users', require('./users/users.controller'));
 
