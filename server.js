@@ -5,20 +5,11 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('_helpers/jwt');
 const errorHandler = require('_helpers/error-handler');
-const socket = require('socket/socket');
+// const socket = require('socket/socket');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
-
-
 var server = require('http').createServer(app)
-// var io = require('socket.io')(server)
-// const io = require('socket.io')(server, {
-//     cors: {
-//         origin: '*',
-//     }
-// });
-module.exports = server
 
 // use JWT auth to secure the api
 app.use(jwt());
@@ -34,29 +25,66 @@ app.use('/users', require('./users/users.controller'));
 app.use(errorHandler);
 
 // start server
-const port = process.env.PORT || 3000;
-const newServer = server.listen(port, () => {
-    console.log('Server listening on port -->' + port);
+// const port = process.env.PORT || 3000;
+// const newServer = server.listen(port, () => {
+//     console.log('Server listening on port -->' + port);
+// });
+
+
+const io = require('socket.io')(server, {
+    cors: {
+        origin: '*',
+    }
 });
 
-app.use(function (req, res, next) {
+//  SOCKET CONNECTION START
+io.on('connection', (socket) => {
+    console.log('Angular app is connected with Socket.io !!!');
 
-    // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', 'https://lt-demo.vercel.app');
+    // User Location Work Start 
+    socket.on('ping', (data) => {
+        console.log('New Location From Frontend-->', data);
+        socket.broadcast.emit('new-location', data);
 
-    // Request methods you wish to allow
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        //Save Current Location 
+        currentLocationCol.updateOne(
+            { id: '1' },
+            {
+                $set: {
+                    id: '1',
+                    lat: data.lat,
+                    lng: data.lat
+                }
+            },
+            { upsert: true }).then(result => {
 
-    // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+                console.log('location Update Result--->', result)
+            })
 
-    // Set to true if you need the website to include cookies in the requests sent
-    // to the API (e.g. in case you use sessions)
-    res.setHeader('Access-Control-Allow-Credentials', true);
+        //Save to Record as A History DB
+        locationHistoryCol.insertOne(data)
+            .then(result => {
+                console.log('location History Result--->', result['acknowledged'])
+            })
+            .catch(error => console.error(error))
 
-    // Pass to next layer of middleware
-    next();
+    });
+
+    // User Messages Work Start
+    socket.on('message', (msg) => {
+        console.log('This is msg rec from Frontend-->', msg);
+        socket.broadcast.emit('message-broadcast', msg);
+    });
+
 });
+
+server.listen(3000, () => {
+    console.log('listening on --->:3000');
+});
+
+
+
+
 
 // var app = require('express')();
 // var http = require('http').createServer(app);
