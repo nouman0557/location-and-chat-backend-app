@@ -1,14 +1,4 @@
-var express = require('express')
-var app = express()
-var server = require('http').createServer(app)
-const io = require('socket.io')(server, {
-    cors: {
-        origin: '*',
-    }
-});
-
-//
-
+const io = require('../server');
 const db = require('_helpers/db');
 const locationHistory = db.locationHistory;
 const currentLocation = db.currentLocation;

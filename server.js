@@ -5,7 +5,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const jwt = require('_helpers/jwt');
 const errorHandler = require('_helpers/error-handler');
-// const socket = require('socket/socket');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
@@ -14,22 +13,11 @@ var server = require('http').createServer(app)
 // use JWT auth to secure the api
 app.use(jwt());
 
-app.get('/', (req, res) => {
-    res.send('Hello Wellcome ----------- NoumanBhai!')
-})
-
 // api routes
 app.use('/users', require('./users/users.controller'));
 
 // global error handler
 app.use(errorHandler);
-
-// start server
-// const port = process.env.PORT || 3000;
-// const newServer = server.listen(port, () => {
-//     console.log('Server listening on port -->' + port);
-// });
-
 
 const io = require('socket.io')(server, {
     cors: {
@@ -37,50 +25,56 @@ const io = require('socket.io')(server, {
     }
 });
 
-//  SOCKET CONNECTION START
-io.on('connection', (socket) => {
-    console.log('Angular app is connected with Socket.io !!!');
-
-    // User Location Work Start 
-    socket.on('ping', (data) => {
-        console.log('New Location From Frontend-->', data);
-        socket.broadcast.emit('new-location', data);
-
-        //Save Current Location 
-        currentLocationCol.updateOne(
-            { id: '1' },
-            {
-                $set: {
-                    id: '1',
-                    lat: data.lat,
-                    lng: data.lat
-                }
-            },
-            { upsert: true }).then(result => {
-
-                console.log('location Update Result--->', result)
-            })
-
-        //Save to Record as A History DB
-        locationHistoryCol.insertOne(data)
-            .then(result => {
-                console.log('location History Result--->', result['acknowledged'])
-            })
-            .catch(error => console.error(error))
-
-    });
-
-    // User Messages Work Start
-    socket.on('message', (msg) => {
-        console.log('This is msg rec from Frontend-->', msg);
-        socket.broadcast.emit('message-broadcast', msg);
-    });
-
-});
+module.exports = io;
+require('socket/socket');
 
 server.listen(process.env.PORT || 3000, () => {
     console.log('listening on --->:3000');
 });
+
+
+// //  SOCKET CONNECTION START
+// io.on('connection', (socket) => {
+//     console.log('Angular app is connected with Socket.io !!!');
+
+//     // User Location Work Start 
+//     socket.on('ping', (data) => {
+//         console.log('New Location From Frontend-->', data);
+//         socket.broadcast.emit('new-location', data);
+
+//         //Save Current Location 
+//         currentLocationCol.updateOne(
+//             { id: '1' },
+//             {
+//                 $set: {
+//                     id: '1',
+//                     lat: data.lat,
+//                     lng: data.lat
+//                 }
+//             },
+//             { upsert: true }).then(result => {
+
+//                 console.log('location Update Result--->', result)
+//             })
+
+//         //Save to Record as A History DB
+//         locationHistoryCol.insertOne(data)
+//             .then(result => {
+//                 console.log('location History Result--->', result['acknowledged'])
+//             })
+//             .catch(error => console.error(error))
+
+//     });
+
+//     // User Messages Work Start
+//     socket.on('message', (msg) => {
+//         console.log('This is msg rec from Frontend-->', msg);
+//         socket.broadcast.emit('message-broadcast', msg);
+//     });
+
+// });
+
+
 
 
 
