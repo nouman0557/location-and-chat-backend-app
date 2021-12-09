@@ -9,7 +9,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 var server = require('http').createServer(app)
-
 // use JWT auth to secure the api
 app.use(jwt());
 
@@ -26,6 +25,7 @@ const io = require('socket.io')(server, {
 });
 
 module.exports = io;
+
 require('socket/socket');
 
 server.listen(process.env.PORT || 3000, () => {

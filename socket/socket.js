@@ -8,7 +8,19 @@ io.on('connection', (socket) => {
     // console.log('Angular app is connected with Socket.io !!');
     // console.log('Angular app is connected with Socket.io !!-->', io.engine.clientsCount);
     // console.log('This is Socket ID -->', socket.id)
-    // console.log('This is io Object -->', io)
+    // console.log('This is io Object -->', io)`
+    socket.on('message', message => {
+        // msg = JSON.parse(message);
+        console.log(message + "\n\n");
+        socket.broadcast(io, message);
+    });
+    socket.on('close', io => {
+        console.log(`Client disconnected. Total connected clients: ${socket.clients.size}`);
+    })
+
+    socket.on('error', error => {
+        console.log(`Client error. Total connected clients: ${socket.clients.size}`);
+    });
 
     socket.on('picUpLocation', (msg) => {
         console.log('This is picUpLocation from Frontend-->', msg);
